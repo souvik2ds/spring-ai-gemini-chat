@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Chat</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f0f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 750px;
+            height: 85vh;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #4285f4;
+            color: white;
+            padding: 18px;
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        #chatBox {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            max-width: 80%;
+            padding: 14px;
+            border-radius: 14px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .user {
+            background: #dbeafe;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .gemini {
+            background: #dcfce7;
+            margin-right: auto;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+
+        #message {
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        button {
+            margin-left: 10px;
+            padding: 14px 22px;
+            border: none;
+            background: #4285f4;
+            color: white;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #3367d6;
+        }
+
+        h1, h2, h3 {
+            margin-top: 10px;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        code {
+            background: #eee;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="header">Ask Gemini</div>
+
+    <div id="chatBox"></div>
+
+    <div class="input-area">
+        <input
+                type="text"
+                id="message"
+                placeholder="Type your question..."
+                onkeypress="handleEnter(event)"
+        >
+        <button onclick="askGemini()">Ask Gemini</button>
+    </div>
+</div>
+
+<script>
+    async function askGemini() {
+        const input = document.getElementById("message");
+        const msg = input.value.trim();
+        const chatBox = document.getElementById("chatBox");
+
+        if (!msg) return;
+
+        chatBox.innerHTML += `
+            <div class="message user">
+                <strong>You:</strong><br>${msg}
+            </div>
+        `;
+
+        input.value = "";
+
+        chatBox.innerHTML += `
+            <div class="message gemini" id="loading">
+                Gemini is thinking...
+            </div>
+        `;
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            const response = await fetch(`/ask/${encodeURIComponent(msg)}`);
+            const data = await response.text();
+
+            document.getElementById("loading").remove();
+
+            chatBox.innerHTML += `
+                <div class="message gemini">
+                    <strong>Gemini:</strong><br>
+                    ${marked.parse(data)}
+                </div>
+            `;
+        } catch (error) {
+            document.getElementById("loading").remove();
+
+            chatBox.innerHTML += `
+                <div class="message gemini">
+                    Error connecting to backend.
+                </div>
+            `;
+        }
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function handleEnter(event) {
+        if (event.key === "Enter") {
+            askGemini();
+        }
+    }
+</script>
+
+</body>
+</html>
