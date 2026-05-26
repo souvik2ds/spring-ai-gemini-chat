@@ -3,194 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Chat</title>
-
+    <title>SmartAssist</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background: #f0f4f9;
+            font-family: Inter, Arial, sans-serif;
+            height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #111827, #1e1b4b);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            padding: 20px;
+            color: white;
         }
-
-        .chat-container {
-            width: 750px;
-            height: 85vh;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        .app {
+            width: 100%;
+            max-width: 1400px;
+            height: 92vh;
+            display: flex;
+            border-radius: 28px;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+        }
+        .sidebar {
+            width: 320px;
+            padding: 28px;
+            background: rgba(2,6,23,0.65);
+            border-right: 1px solid rgba(255,255,255,0.08);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            gap: 24px;
         }
-
-        .header {
-            background: #4285f4;
-            color: white;
-            padding: 18px;
-            text-align: center;
-            font-size: 26px;
-            font-weight: bold;
+        .brand { display: flex; align-items: center; gap: 14px; }
+        .logo {
+            width: 56px; height: 56px; border-radius: 18px;
+            background: linear-gradient(135deg,#8b5cf6,#3b82f6);
+            display:flex; align-items:center; justify-content:center;
+            font-size: 28px; font-weight: bold;
+            box-shadow: 0 10px 30px rgba(99,102,241,0.5);
         }
-
-        #chatBox {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #fafafa;
-        }
-
-        .message {
-            margin-bottom: 20px;
-            max-width: 80%;
-            padding: 14px;
-            border-radius: 14px;
-            line-height: 1.6;
-            word-wrap: break-word;
-        }
-
-        .user {
-            background: #dbeafe;
-            margin-left: auto;
-            text-align: right;
-        }
-
-        .gemini {
-            background: #dcfce7;
-            margin-right: auto;
-        }
-
-        .input-area {
-            display: flex;
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #ddd;
-        }
-
-        #message {
-            flex: 1;
-            padding: 14px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            outline: none;
-        }
-
-        button {
-            margin-left: 10px;
-            padding: 14px 22px;
+        .brand h1 { font-size: 28px; }
+        .brand p { color: #cbd5e1; font-size: 13px; margin-top: 4px; }
+        .new-chat {
             border: none;
-            background: #4285f4;
+            padding: 16px;
+            border-radius: 16px;
+            background: linear-gradient(135deg,#7c3aed,#2563eb);
             color: white;
             font-size: 16px;
-            border-radius: 10px;
+            font-weight: 600;
             cursor: pointer;
         }
-
-        button:hover {
-            background: #3367d6;
+        .info-card {
+            margin-top: auto;
+            padding: 20px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
         }
-
-        h1, h2, h3 {
-            margin-top: 10px;
+        .info-card h3 { margin-bottom: 8px; }
+        .info-card p { color: #cbd5e1; line-height: 1.5; font-size: 14px; }
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255,255,255,0.04);
         }
-
-        ul, ol {
-            padding-left: 20px;
+        .topbar {
+            padding: 24px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
-        code {
-            background: #eee;
-            padding: 2px 5px;
-            border-radius: 4px;
+        .topbar h2 { font-size: 24px; }
+        .topbar span { color: #cbd5e1; font-size: 14px; }
+        #chatBox {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .welcome {
+            margin: auto;
+            text-align: center;
+            max-width: 650px;
+        }
+        .welcome h1 {
+            font-size: 52px;
+            background: linear-gradient(135deg,#c084fc,#60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+        .welcome p { color: #cbd5e1; line-height: 1.7; }
+        .message {
+            max-width: 75%;
+            padding: 18px 20px;
+            border-radius: 22px;
+            line-height: 1.7;
+            word-wrap: break-word;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .user {
+            align-self: flex-end;
+            background: linear-gradient(135deg,#7c3aed,#2563eb);
+        }
+        .ai {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .input-area {
+            padding: 24px 30px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            gap: 16px;
+        }
+        #message {
+            flex: 1;
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+        #message::placeholder { color: #cbd5e1; }
+        button.send {
+            border: none;
+            width: 64px;
+            border-radius: 18px;
+            background: linear-gradient(135deg,#7c3aed,#2563eb);
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        code { background: rgba(0,0,0,0.35); padding: 2px 6px; border-radius: 8px; }
+        pre { background: rgba(0,0,0,0.35); padding: 14px; border-radius: 12px; overflow-x: auto; }
+        @media (max-width: 900px) {
+            .sidebar { display:none; }
+            .message { max-width: 90%; }
+            .welcome h1 { font-size: 38px; }
         }
     </style>
 </head>
 <body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo">S</div>
+            <div>
+                <h1>SmartAssist</h1>
+                <p>Context-aware AI Assistant</p>
+            </div>
+        </div>
+        <button class="new-chat" onclick="startNewChat()">+ New Chat</button>
+        <div class="info-card">
+            <h3>About SmartAssist</h3>
+            <p>Built with Java, Spring Boot, Spring AI, and Gemini. Supports contextual conversations with session-based memory.</p>
+        </div>
+    </aside>
 
-<div class="chat-container">
-    <div class="header">Ask Gemini</div>
+    <main class="chat-area">
+        <div class="topbar">
+            <div>
+                <h2>SmartAssist</h2>
+                <span>Your intelligent conversation partner</span>
+            </div>
+        </div>
 
-    <div id="chatBox"></div>
+        <div id="chatBox">
+            <div class="welcome" id="welcomeScreen">
+                <h1>SmartAssist</h1>
+                <p>Ask coding questions, explain concepts, debug Spring Boot issues, or continue contextual conversations naturally.</p>
+            </div>
+        </div>
 
-    <div class="input-area">
-        <input
-                type="text"
-                id="message"
-                placeholder="Type your question..."
-                onkeypress="handleEnter(event)"
-        >
-        <button onclick="askGemini()">Ask Gemini</button>
-    </div>
+        <div class="input-area">
+            <input type="text" id="message" placeholder="Ask SmartAssist anything..." onkeypress="handleEnter(event)">
+            <button class="send" onclick="askSmartAssist()">➤</button>
+        </div>
+    </main>
 </div>
 
 <script>
-    let sessionId = localStorage.getItem("chatSessionId");
-
+    let sessionId = localStorage.getItem('chatSessionId');
     if (!sessionId) {
         sessionId = crypto.randomUUID();
-        localStorage.setItem("chatSessionId", sessionId);
+        localStorage.setItem('chatSessionId', sessionId);
     }
-    async function askGemini() {
-        const input = document.getElementById("message");
+
+    function startNewChat() {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem('chatSessionId', sessionId);
+        document.getElementById('chatBox').innerHTML = `
+            <div class="welcome" id="welcomeScreen">
+                <h1>SmartAssist</h1>
+                <p>New conversation started.</p>
+            </div>`;
+    }
+
+    async function askSmartAssist() {
+        const input = document.getElementById('message');
         const msg = input.value.trim();
-        const chatBox = document.getElementById("chatBox");
-
+        const chatBox = document.getElementById('chatBox');
+        const welcome = document.getElementById('welcomeScreen');
         if (!msg) return;
+        if (welcome) welcome.remove();
 
-        chatBox.innerHTML += `
-            <div class="message user">
-                <strong>You:</strong><br>${msg}
-            </div>
-        `;
-
-        input.value = "";
-
-        chatBox.innerHTML += `
-            <div class="message gemini" id="loading">
-                Gemini is thinking...
-            </div>
-        `;
-
+        chatBox.innerHTML += `<div class="message user">${msg}</div>`;
+        input.value = '';
+        chatBox.innerHTML += `<div class="message ai" id="loading">SmartAssist is thinking...</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
 
         try {
             const response = await fetch(`/ask?msg=${encodeURIComponent(msg)}&sessionId=${sessionId}`);
             const data = await response.text();
-
-            document.getElementById("loading").remove();
-
-            chatBox.innerHTML += `
-                <div class="message gemini">
-                    <strong>Gemini:</strong><br>
-                    ${marked.parse(data)}
-                </div>
-            `;
+            document.getElementById('loading').remove();
+            chatBox.innerHTML += `<div class="message ai">${marked.parse(data)}</div>`;
         } catch (error) {
-            document.getElementById("loading").remove();
-
-            chatBox.innerHTML += `
-                <div class="message gemini">
-                    Error connecting to backend.
-                </div>
-            `;
+            document.getElementById('loading').remove();
+            chatBox.innerHTML += `<div class="message ai">Unable to connect to backend.</div>`;
         }
-
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
     function handleEnter(event) {
-        if (event.key === "Enter") {
-            askGemini();
-        }
+        if (event.key === 'Enter') askSmartAssist();
     }
 </script>
-
 </body>
 </html>

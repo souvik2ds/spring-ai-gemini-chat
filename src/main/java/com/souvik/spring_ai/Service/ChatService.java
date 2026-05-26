@@ -20,18 +20,19 @@ public class ChatService {
                 .build();
 
     }
-    public String reply(String msg,String conversationId)
+    public String reply(String msg, String conversationId)
     {
-        return client
-                .prompt()
-                .user(msg)
-                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID,conversationId))
-                .call()
-                .content();
-        //in place of content() i can use chatResponse()
-        //                .getResult()
-        //                .getOutput()
-        //                .getText(); also.
+        try {
+            return client
+                    .prompt()
+                    .user(msg)
+                    .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
+                    .call()
+                    .content();
+
+        } catch (Exception e) {
+            return "SmartAssist is temporarily busy due to API rate limits. Please try again in a minute.";
+        }
     }
 
 }
