@@ -131,6 +131,12 @@
 </div>
 
 <script>
+    let sessionId = localStorage.getItem("chatSessionId");
+
+    if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem("chatSessionId", sessionId);
+    }
     async function askGemini() {
         const input = document.getElementById("message");
         const msg = input.value.trim();
@@ -155,7 +161,7 @@
         chatBox.scrollTop = chatBox.scrollHeight;
 
         try {
-            const response = await fetch(`/ask/${encodeURIComponent(msg)}`);
+            const response = await fetch(`/ask?msg=${encodeURIComponent(msg)}&sessionId=${sessionId}`);
             const data = await response.text();
 
             document.getElementById("loading").remove();
